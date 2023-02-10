@@ -1,0 +1,128 @@
+<html lang="en">
+
+<head>
+
+    <title>Построение ортодромии</title></head>
+    
+<body>
+    <link rel="stylesheet" href="static\styles.css">
+    <link rel="stylesheet" href="static\libs\v6.4.3-dist\ol.css">
+    <link rel="stylesheet" href="https://openlayers.org/en/v4.6.5/css/ol.css" type="text/css">
+    <!-- The line below is only needed for old environments like Internet Explorer and Android 4.x -->
+    <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList,URL"></script>
+    <script src="https://openlayers.org/en/v4.6.5/build/ol.js"></script>
+
+    <script src="static\libs\v6.4.3-dist\ol.css"></script>
+    
+<!-- Создание окон ввода на панели слева -->
+
+        <div class="grid-container">
+            
+            <div class="grid1">
+                <div class="sidebar">
+                    <h2>Введите координаты точек в формате WKT</h2>
+                    
+                    <div>
+                       
+                            <label for="p1">Первая точка:</label> <input type="text" id="p1" name="p1">
+                            <br></br>
+                            <label for="p2">Вторая точка:</label><input type="text" id="p2" name="p2">
+                            <br></br>
+                            <label for="Number_of_points">Количество узлов</label><input type="text" id="Number_of_points" name="Number_of_points">
+                            <br></br>
+                            <form action="">
+                                <select name="sk" id="sk">
+                                    <option value = "SK-42">CK-42</option>
+                                    <option value = "WGS84">WGS84</option>
+                                </select>
+                            </form>
+                            <!-- Кнопка запуска ajax запроса -->
+                            <button type="submit" onclick='myfunction();'>Провести расчёты</button>
+                            <br></br>
+                            <br></br>
+                            
+                    
+                        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
+                        <script>
+                            function myfunction() {
+                        //сбор данных с полей ввода
+                                const FirstPoint = document.getElementById("p1").value;
+                                const SecondPoint = document.getElementById("p2").value;
+                                const SK = document.getElementById("sk").value;
+                                const Number_of_points = document.getElementById("Number_of_points").value;
+                        
+                        //Их объединение и перевод в json
+                                const dict_values = {FirstPoint, SecondPoint,SK,Number_of_points} 
+                                const s = JSON.stringify(dict_values); 
+                                
+                        //Сам ajax запрос
+                                $.ajax({
+                                    url:"/test",
+                                    type:'POST',
+                                    contentType: "application/json",
+                                    data: JSON.stringify(s),
+                                    success: function(response) {                //Вызов функции по завершению отправки для возврата значений 
+                                        var json = jQuery.parseJSON(response)
+                                        $('#Line').html(json.Line)
+                                        var coordinates = (json.coordinates_date)
+                                        console.log(coordinates)
+
+                                        var layerLines = new ol.layer.Vector({   //Добавление MultiLineString на карту
+                                            source: new ol.source.Vector({
+                                                features: [new ol.Feature({
+                                                    geometry: new ol.geom.MultiLineString(coordinates),
+                                                    name: 'Line'
+                                                })]
+                                            }),
+                                        });
+                                      
+                                        map.addLayer(layerLines)
+                                        ;
+                                    },
+                                    error: function(error) {
+                                        console.log(error);
+                                    }
+                                });
+                            }
+                        </script>
+                        
+                        
+                        
+
+                        <label for="ResultLine">Результат запроса</label>
+                        <div id="Line"></div>   <!-- Вывод LineSrting  -->
+                      
+                    </div>
+    
+                </div>
+            </div>
+    
+    <div class="grid2">
+    <div id="jsmap" class="map"></div>        
+    </div>
+    <div class="grid3">
+    </div>
+    </div>
+        <!-- Создание карты -->
+        <script > 
+            const map = new ol.Map({
+                view: new ol.View({
+                    center: [0,0],
+                    zoom:5,
+                    projection: 'EPSG:4326'
+                }),
+                layers: [
+                    new ol.layer.Tile({
+                        source: new ol.source.OSM()
+                    })
+                ],
+                target: 'jsmap'
+            })
+           
+        </script>
+    <script src="static\libs\v6.4.3-dist\ol.css"></script>
+    
+
+
+</body>
+</html>
