@@ -50,6 +50,9 @@
                                 const SecondPoint = document.getElementById("p2").value;
                                 const SK = document.getElementById("sk").value;
                                 const Number_of_points = document.getElementById("Number_of_points").value;
+
+                                if (FirstPoint=="") alert ("Введите первую точку");
+                                if (SecondPoint=="") alert ("Введите вторую точку");
                         
                         //Их объединение и перевод в json
                                 const dict_values = {FirstPoint, SecondPoint,SK,Number_of_points} 
@@ -64,7 +67,7 @@
                                     success: function(response) {                //Вызов функции по завершению отправки для возврата значений 
                                         var json = jQuery.parseJSON(response)
                                         $('#Line').html(json.Line)
-                                        var coordinates = (json.coordinates_date)
+                                        var coordinates = (json.coordinates_data)
                                         console.log(coordinates)
 
                                         var layerLines = new ol.layer.Vector({   //Добавление MultiLineString на карту
